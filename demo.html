@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vinum Chimique — Modèle réel · poids JSON</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,700;0,6..96,800;1,6..96,400;1,6..96,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --paper:        #f2ead8;
+      --paper-warm:   #ece3c8;
+      --paper-deep:   #ddd0ad;
+      --ink:          #160c08;
+      --ink-soft:     #3d2d1e;
+      --ink-mute:     #6e5a45;
+      --rule:         #c0a878;
+      --oxblood:      #8a1020;
+      --oxblood-deep: #4a0810;
+      --garnet:       #a01a30;
+      --rose:         #c46070;
+      --burgundy:     #4a0c14;
+      --gold:         #c09a0a;
+      --c0:           #8a1020;
+      --c1:           #c46070;
+      --c2:           #4a0c14;
+      --display: "Bodoni Moda", "Bodoni 72", "Didot", serif;
+      --body:    "EB Garamond", "Hoefler Text", Georgia, serif;
+      --mono:    "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-size: 87.5%;
+    }
+    html, body {
+      background: #0e0508;
+      min-height: 100vh;
+      font-family: var(--body);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+
+    /* ── Site navigation ────────────────────────────────── */
+    .site-nav {
+      max-width: 1080px;
+      width: calc(100% - 160px);
+      margin: 0 auto;
+      padding: 14px clamp(16px, 4vw, 64px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .site-nav .nav-brand {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(239,230,208,0.35);
+    }
+    .site-nav .nav-links { display: flex; gap: 6px; }
+    .site-nav .nav-link {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(239,230,208,0.45);
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1px solid transparent;
+      transition: all 0.18s ease;
+    }
+    .site-nav .nav-link:hover { color: rgba(239,230,208,0.8); border-color: rgba(239,230,208,0.2); }
+    .site-nav .nav-link.active {
+      color: #f2ead8;
+      border-color: rgba(138,16,32,0.6);
+      background: rgba(138,16,32,0.15);
+      box-shadow: 0 0 14px rgba(138,16,32,0.25);
+    }
+    .site-nav .nav-pill {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: rgba(92,26,31,0.4);
+      color: rgba(239,230,208,0.6);
+      padding: 2px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── Page ───────────────────────────────────────────── */
+    .page {
+      max-width: 1080px;
+      width: calc(100% - 160px);
+      min-height: 900px;
+      margin: 0 auto 32px auto;
+      background: rgba(242, 234, 216, 0.82);
+      color: var(--ink);
+      position: relative;
+      box-shadow: 0 20px 80px -20px rgba(0,0,0,0.7), 0 4px 12px rgba(0,0,0,0.4);
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+      background-image:
+        radial-gradient(ellipse at 20% 10%, rgba(120,90,50,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse at 90% 90%, rgba(90,30,30,0.05) 0%, transparent 50%);
+    }
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.5;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      mix-blend-mode: multiply;
+      z-index: 1;
+    }
+
+    /* Model loading overlay */
+    .model-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(239,230,208,0.88);
+      backdrop-filter: blur(2px);
+    }
+    .model-card {
+      text-align: center;
+      padding: 48px 64px;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+    .model-card .mc-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 16px;
+    }
+    .model-card .mc-title {
+      font-family: var(--display);
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .model-card .mc-sub {
+      font-family: var(--body);
+      font-style: italic;
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .model-card code {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--paper-deep);
+      padding: 10px 18px;
+      display: inline-block;
+      color: var(--oxblood);
+      letter-spacing: 0.05em;
+    }
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--rule);
+      border-top-color: var(--oxblood);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .deckle {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--oxblood);
+      z-index: 3;
+    }
+    .deckle::after {
+      content: "";
+      position: absolute;
+      top: 8px; left: 0; right: 0;
+      height: 1px;
+      background: var(--oxblood);
+    }
+
+    /* ── Masthead ─────────────────────────────────────── */
+    .masthead {
+      padding: 38px clamp(20px, 4.5vw, 64px) 28px clamp(20px, 4.5vw, 64px);
+      border-bottom: 1px solid var(--rule);
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: end;
+      gap: 24px;
+    }
+    .ed-meta-l, .ed-meta-r {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+    .ed-meta-r { text-align: right; }
+    .ed-meta-l .accent, .ed-meta-r .accent { color: var(--oxblood); font-weight: 600; }
+    .masthead h1 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: clamp(26px, 4.8vw, 68px);
+      line-height: 0.85;
+      letter-spacing: -0.025em;
+      text-align: center;
+      color: var(--ink);
+      font-variation-settings: "opsz" 96;
+    }
+    .masthead h1 .amp { font-style: italic; color: var(--oxblood); font-weight: 400; padding: 0 6px; }
+    .sub {
+      grid-column: 1 / -1;
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 24px;
+    }
+    .sub .rule { height: 1px; background: var(--ink); opacity: 0.7; }
+    .sub .tagline {
+      font-family: var(--body);
+      font-style: italic;
+      font-size: 14px;
+      color: var(--ink-soft);
+      letter-spacing: 0.01em;
+      text-align: center;
+      padding: 0 18px;
+    }
+
+    /* ── Main body ────────────────────────────────────── */
+    .main {
+      display: grid;
+      grid-template-columns: minmax(0, 57%) 1fr;
+      position: relative;
+      z-index: 2;
+    }
+    .main::after {
+      content: "";
+      position: absolute;
+      left: 57%;
+      top: 28px;
+      bottom: 28px;
+      width: 1px;
+      background: var(--rule);
+    }
+
+    /* ── Left column ──────────────────────────────────── */
+    .col-l { padding: 36px clamp(16px, 3.9vw, 56px) 36px clamp(16px, 4.5vw, 64px); }
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 14px;
+      margin-top: 28px;
+    }
+    .section-title:first-child { margin-top: 0; }
+    .section-title .roman { font-family: var(--display); font-style: italic; font-size: 20px; color: var(--oxblood); font-weight: 500; }
+    .section-title h3 { font-family: var(--display); font-weight: 500; font-size: 17px; letter-spacing: -0.005em; color: var(--ink); }
+    .section-title .count { margin-left: auto; font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--ink-mute); text-transform: uppercase; }
+    .section-title + .desc { font-family: var(--body); font-style: italic; font-size: 13px; color: var(--ink-soft); margin-bottom: 18px; max-width: 560px; line-height: 1.5; }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 36px; row-gap: 16px; }
+    .feature {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: baseline;
+      column-gap: 12px;
+      row-gap: 4px;
+      padding: 8px 0 6px 0;
+      border-bottom: 1px dotted var(--rule);
+    }
+    .feature .label { font-family: var(--body); font-size: 14px; color: var(--ink); font-weight: 500; letter-spacing: 0.005em; }
+    .feature .label .it { font-style: italic; color: var(--ink-mute); font-size: 11px; margin-left: 4px; font-weight: 400; }
+    .feature .value { font-family: var(--mono); font-size: 13px; color: var(--oxblood); font-weight: 500; font-variant-numeric: tabular-nums; min-width: 50px; text-align: right; }
+    .feature .slider-wrap { grid-column: 1 / -1; position: relative; padding: 8px 0 4px; }
+    input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 18px; background: transparent; cursor: ew-resize; position: relative; z-index: 1; }
+    input[type="range"]::-webkit-slider-runnable-track { height: 1px; background: var(--ink); opacity: 0.5; }
+    input[type="range"]::-moz-range-track { height: 1px; background: var(--ink); opacity: 0.5; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 2px solid var(--oxblood); margin-top: -7px; transition: transform 0.12s ease, background 0.12s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+    input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--paper); border: 2px solid var(--oxblood); box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+    input[type="range"]:hover::-webkit-slider-thumb { background: var(--oxblood); transform: scale(1.15); }
+    input[type="range"]:active::-webkit-slider-thumb { background: var(--oxblood); transform: scale(1.25); }
+    .ticks { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; pointer-events: none; display: flex; justify-content: space-between; }
+    .ticks span { width: 1px; height: 3px; background: var(--ink-mute); opacity: 0.35; }
+    .ticks span:first-child, .ticks span:last-child { opacity: 0.7; height: 5px; }
+    .ticks span.center { opacity: 0.5; height: 5px; }
+    .range-labels { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 9px; color: var(--ink-mute); letter-spacing: 0.1em; margin-top: 2px; }
+    .feature.changed .value { animation: pulse 0.6s ease-out; }
+    @keyframes pulse { 0% { color: var(--oxblood); } 50% { color: var(--garnet); transform: translateY(-1px); } 100% { color: var(--oxblood); } }
+
+    /* ── Right column ─────────────────────────────────── */
+    .col-r { padding: 36px clamp(16px, 4.5vw, 64px) 36px clamp(16px, 3.3vw, 48px); position: relative; }
+    .verdict-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 4px; }
+    .verdict-head .roman { font-family: var(--display); font-style: italic; font-size: 20px; color: var(--oxblood); }
+    .verdict-head h3 { font-family: var(--display); font-weight: 500; font-size: 22px; }
+    .verdict-head .live {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: var(--ink-mute);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .verdict-head .live::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--oxblood); animation: blink 1.6s infinite ease-in-out; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .verdict-desc { font-family: var(--body); font-style: italic; font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 24px; }
+    .verdict-name { margin-top: 8px; padding-top: 18px; border-top: 2px solid var(--ink); }
+    .verdict-name .num { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--ink-mute); text-transform: uppercase; margin-bottom: 6px; }
+    .verdict-name h2 { font-family: var(--display); font-weight: 700; font-size: 48px; line-height: 0.9; letter-spacing: -0.02em; color: var(--oxblood); font-variation-settings: "opsz" 96; transition: color 0.4s ease; animation: verdict-pop 0.55s cubic-bezier(0.16,1,0.3,1) both; }
+    .verdict-name h2 .italic-tail { font-style: italic; font-weight: 400; font-size: 26px; color: var(--ink-soft); display: block; margin-top: 8px; letter-spacing: 0; font-variation-settings: "opsz" 11; }
+    .verdict-name .conf { margin-top: 14px; display: flex; align-items: baseline; gap: 12px; font-family: var(--body); font-size: 14px; color: var(--ink-soft); font-style: italic; flex-wrap: wrap; }
+    .verdict-name .conf strong { font-family: var(--mono); font-style: normal; font-weight: 600; font-size: 18px; color: var(--ink); font-variant-numeric: tabular-nums; margin-left: 4px; }
+    .glass-bay { margin: 24px 0 28px 0; display: grid; grid-template-columns: 180px 1fr; gap: 24px; align-items: center; }
+    .glass-svg { width: 180px; height: 220px; }
+    .glass-caption { font-family: var(--body); font-style: italic; font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; }
+    .glass-caption .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle; margin-right: 6px; transition: background 0.4s ease; }
+    .glass-caption .fig { font-family: var(--mono); font-style: normal; font-size: 10px; letter-spacing: 0.15em; color: var(--ink-mute); text-transform: uppercase; display: block; margin-bottom: 6px; }
+    .probs { margin-top: 8px; }
+    .probs-head { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: baseline; }
+    .probs-head .em { color: var(--ink); }
+    .prob-row { display: grid; grid-template-columns: 28px 1fr 56px; grid-template-rows: auto auto; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px dotted var(--rule); }
+    .prob-row:last-child { border-bottom: none; }
+    .prob-row .pclass { grid-row: 1; grid-column: 1; font-family: var(--display); font-style: italic; font-size: 18px; color: var(--oxblood); }
+    .prob-row .pname { grid-row: 1; grid-column: 2; font-family: var(--body); font-size: 15px; color: var(--ink); display: flex; flex-direction: column; gap: 4px; }
+    .prob-row .pname .it { font-style: italic; font-size: 11px; color: var(--ink-mute); }
+    .prob-row .pval { grid-row: 1; grid-column: 3; font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+    .prob-row .pbar { grid-row: 2; grid-column: 1 / -1; margin-top: 6px; position: relative; height: 4px; background: rgba(28,21,15,0.08); overflow: hidden; }
+    .prob-row .pbar .pfill { height: 100%; background: var(--oxblood); transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .prob-row.winner .pclass, .prob-row.winner .pval { color: var(--oxblood); }
+    .prob-row.winner .pname { font-weight: 500; }
+    .presets { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--rule); }
+    .presets-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 10px; }
+    .preset-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .preset { font-family: var(--body); font-size: 12.5px; font-style: italic; color: var(--ink); background: transparent; border: 1px solid var(--ink); padding: 7px 14px; border-radius: 999px; cursor: pointer; transition: all 0.18s ease; letter-spacing: 0.01em; white-space: nowrap; line-height: 1; }
+    .preset:hover { background: var(--ink); color: var(--paper); }
+    .preset.wine { border-color: var(--oxblood); color: var(--oxblood); }
+    .preset.wine:hover { background: var(--oxblood); color: var(--paper); }
+    .preset.reset { border-style: dashed; border-color: var(--ink-mute); color: var(--ink-mute); }
+
+    /* ── Footer ───────────────────────────────────────── */
+    .colophon { border-top: 1px solid var(--rule); padding: 24px clamp(16px, 4.5vw, 64px) 32px clamp(16px, 4.5vw, 64px); display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 32px; position: relative; z-index: 2; }
+    .col-block .h { font-family: var(--mono); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px; }
+    .col-block .v { font-family: var(--display); font-size: 22px; font-weight: 500; color: var(--ink); line-height: 1; }
+    .col-block .v .unit { font-family: var(--body); font-style: italic; font-size: 14px; color: var(--ink-soft); font-weight: 400; }
+    .col-block .v.wine { color: var(--oxblood); }
+    .col-block .cap { font-family: var(--body); font-style: italic; font-size: 12px; color: var(--ink-soft); margin-top: 6px; line-height: 1.4; }
+    .imprint { grid-column: 1 / -1; margin-top: 12px; padding-top: 16px; border-top: 1px dotted var(--rule); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-mute); }
+    .imprint .accent { color: var(--oxblood); }
+    .folio { position: absolute; bottom: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--ink-mute); text-transform: uppercase; z-index: 3; }
+    .folio.l { left: 24px; }
+    .folio.r { right: 24px; }
+
+    /* ── Animated background canvas ──────────────────────── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Entry animations ────────────────────────────────── */
+    @keyframes nav-enter {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .site-nav { animation: nav-enter 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+
+    @keyframes page-enter {
+      from { opacity: 0; transform: translateY(30px) scale(0.985); box-shadow: none; }
+      to   { opacity: 1; transform: translateY(0)   scale(1);    }
+    }
+    .page { animation: page-enter 1s cubic-bezier(0.16,1,0.3,1) 0.12s both; }
+
+    @keyframes title-reveal {
+      from { opacity: 0; filter: blur(14px); transform: scale(0.96); }
+      to   { opacity: 1; filter: blur(0);    transform: scale(1); }
+    }
+    .masthead h1 { animation: title-reveal 1.3s cubic-bezier(0.16,1,0.3,1) 0.45s both; }
+
+    /* ── Glass float ─────────────────────────────────────── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px);  }
+      50%       { transform: translateY(-9px); }
+    }
+    .glass-svg { animation: float 5.5s ease-in-out infinite; }
+
+    /* ── Deckle glow ─────────────────────────────────────── */
+    @keyframes deckle-glow {
+      0%, 100% { box-shadow: 0 0 6px rgba(138,16,32,0.5); }
+      50%       { box-shadow: 0 0 22px rgba(138,16,32,0.9), 0 0 40px rgba(138,16,32,0.3); }
+    }
+    .deckle { animation: deckle-glow 3.5s ease-in-out infinite; }
+
+    /* ── Verdict pop (keyed remount triggers it) ─────────── */
+    @keyframes verdict-pop {
+      0%   { opacity: 0.2; transform: scale(0.92) translateY(6px); filter: blur(6px); }
+      65%  { opacity: 1;   transform: scale(1.03) translateY(0);   filter: blur(0); }
+      100% { opacity: 1;   transform: scale(1)    translateY(0);   filter: blur(0); }
+    }
+
+    /* ── Confidence glow ─────────────────────────────────── */
+    @keyframes conf-glow {
+      0%, 100% { text-shadow: 0 0 8px rgba(138,16,32,0.3); }
+      50%       { text-shadow: 0 0 18px rgba(138,16,32,0.7), 0 0 4px rgba(138,16,32,0.5); }
+    }
+    .verdict-name .conf strong { animation: conf-glow 2.8s ease-in-out infinite; }
+
+    /* ── Prob rows stagger entrance ──────────────────────── */
+    @keyframes row-in {
+      from { opacity: 0; transform: translateX(-16px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .prob-row:nth-child(1) { animation: row-in 0.5s ease 0.9s  both; }
+    .prob-row:nth-child(2) { animation: row-in 0.5s ease 1.05s both; }
+    .prob-row:nth-child(3) { animation: row-in 0.5s ease 1.2s  both; }
+
+    /* ── Winner bar shimmer ──────────────────────────────── */
+    @keyframes bar-shimmer {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.65; }
+    }
+    .prob-row.winner .pfill { animation: bar-shimmer 2.5s ease-in-out infinite; }
+
+    /* ── Masthead rule glow ──────────────────────────────── */
+    @keyframes rule-fade {
+      from { opacity: 0; transform: scaleX(0); }
+      to   { opacity: 0.7; transform: scaleX(1); }
+    }
+    .sub .rule { animation: rule-fade 1s ease 0.9s both; transform-origin: center; }
+
+    /* Real-model badge */
+    .real-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(155,123,62,0.4);
+      padding: 3px 8px;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .real-badge::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    /* ── Theme toggle button ─────────────────────────────── */
+    .theme-btn {
+      background: rgba(239,230,208,0.15);
+      border: 1px solid rgba(239,230,208,0.35);
+      color: rgba(239,230,208,0.85);
+      cursor: pointer;
+      padding: 5px 10px;
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 4px;
+      margin-left: 10px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .theme-btn:hover {
+      color: #fff;
+      border-color: rgba(239,230,208,0.65);
+      background: rgba(239,230,208,0.28);
+    }
+    .theme-btn .theme-label {
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    /* ── Light mode overrides ─────────────────────────────── */
+    [data-theme="light"] html,
+    [data-theme="light"] body,
+    [data-theme="light"] {
+      background: #e8d8b8;
+    }
+    [data-theme="light"] .site-nav .nav-brand {
+      color: rgba(30,15,8,0.45);
+    }
+    [data-theme="light"] .site-nav .nav-link {
+      color: rgba(30,15,8,0.55);
+    }
+    [data-theme="light"] .site-nav .nav-link:hover {
+      color: rgba(30,15,8,0.85);
+      border-color: rgba(30,15,8,0.25);
+    }
+    [data-theme="light"] .site-nav .nav-link.active {
+      color: #160c08;
+      border-color: rgba(138,16,32,0.5);
+      background: rgba(138,16,32,0.08);
+      box-shadow: 0 0 10px rgba(138,16,32,0.12);
+    }
+    [data-theme="light"] .theme-btn {
+      background: rgba(22,12,8,0.12);
+      color: rgba(22,12,8,0.8);
+      border-color: rgba(22,12,8,0.25);
+    }
+    [data-theme="light"] .theme-btn:hover {
+      background: rgba(22,12,8,0.22);
+      color: rgba(22,12,8,1);
+      border-color: rgba(22,12,8,0.45);
+    }
+    [data-theme="light"] .page {
+      background: rgba(252, 247, 236, 0.90);
+      box-shadow: 0 12px 48px -8px rgba(80,30,10,0.22), 0 2px 8px rgba(80,30,10,0.12);
+    }
+
+    @media (max-width: 960px) {
+      .main { grid-template-columns: 1fr; }
+      .main::after { display: none; }
+      .col-r { border-top: 1px solid var(--rule); }
+      .masthead { grid-template-columns: 1fr; gap: 10px; }
+      .ed-meta-r { text-align: left; }
+      .sub { grid-template-columns: 1fr; }
+      .sub .rule { display: none; }
+      .colophon { grid-template-columns: 1fr 1fr; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .glass-bay { grid-template-columns: 140px 1fr; }
+      .glass-svg { width: 140px; height: 170px; }
+    }
+    @media (max-width: 520px) {
+      .colophon { grid-template-columns: 1fr; }
+      .preset-row { gap: 6px; }
+      .verdict-name h2 { font-size: clamp(24px, 8vw, 48px); }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bg-canvas"></canvas>
+
+  <nav class="site-nav">
+    <span class="nav-brand">Vinum &amp; Chimique · TP05</span>
+    <div class="nav-links">
+      <button class="theme-btn" id="theme-toggle" aria-label="Basculer mode">
+        <span id="theme-icon">🌙</span>
+        <span class="theme-label" id="theme-label">Clair</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="page" data-screen-label="Vinum Chimique — Modèle réel">
+    <div class="deckle"></div>
+    <div class="folio l">P. II · TP05 — MAI 2026</div>
+    <div class="folio r">JARI · ABDENBI · MODÈLE RÉEL</div>
+    <div id="app"></div>
+  </div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" data-presets="react">
+// Wine MLP — Vinum Chimique · Modèle réel
+// Loads weights from weights.json and runs a native JS forward pass.
+// Requires: python extract_weights.py  (generates ./weights.json)
+
+const { useState, useEffect, useRef, useMemo } = React;
+
+// ─── Feature catalogue (same as index.html) ─────────────────────────
+const FEATURES = [
+  { id: "alcohol",              grp: 1, label: "Alcool",                  it: "% vol.",               min: 11.0, max: 14.8, step: 0.05, dp: 2 },
+  { id: "proline",              grp: 1, label: "Proline",                 it: "mg / L",               min: 278,  max: 1680, step: 2,    dp: 0 },
+  { id: "color_intensity",      grp: 1, label: "Intensité colorante",     it: "abs. — densité optique", min: 1.28, max: 13.0, step: 0.05, dp: 2 },
+  { id: "magnesium",            grp: 1, label: "Magnésium",               it: "mg / L",               min: 70,   max: 162,  step: 1,    dp: 0 },
+  { id: "total_phenols",        grp: 2, label: "Phénols totaux",          it: "g / L éq. ac. gallique", min: 0.98, max: 3.88, step: 0.02, dp: 2 },
+  { id: "flavanoids",           grp: 2, label: "Flavonoïdes",             it: "g / L",                min: 0.34, max: 5.08, step: 0.02, dp: 2 },
+  { id: "nonflavanoid_phenols", grp: 2, label: "Phénols non-flavonoïdes", it: "g / L",                min: 0.13, max: 0.66, step: 0.01, dp: 2 },
+  { id: "proanthocyanins",      grp: 2, label: "Proanthocyanines",        it: "g / L",                min: 0.41, max: 3.58, step: 0.02, dp: 2 },
+  { id: "od280_od315",          grp: 2, label: "OD₂₈₀ / OD₃₁₅",          it: "vins dilués",          min: 1.27, max: 4.00, step: 0.02, dp: 2 },
+  { id: "malic_acid",           grp: 3, label: "Acide malique",           it: "g / L",                min: 0.74, max: 5.80, step: 0.04, dp: 2 },
+  { id: "ash",                  grp: 3, label: "Cendres",                 it: "g / L — résidu sec",   min: 1.36, max: 3.23, step: 0.02, dp: 2 },
+  { id: "alcalinity_of_ash",    grp: 3, label: "Alcalinité des cendres",  it: "mEq / L",              min: 10.6, max: 30.0, step: 0.1,  dp: 1 },
+  { id: "hue",                  grp: 3, label: "Teinte",                  it: "abs. 420 / abs. 520",  min: 0.48, max: 1.71, step: 0.01, dp: 2 },
+];
+
+const GROUPS = [
+  { id: 1, roman: "I",   title: "Profil principal",          desc: "Les quatre marqueurs les plus discriminants — l'alcool et la proline portent à eux seuls près de 60 % de la séparation entre cultivars." },
+  { id: 2, roman: "II",  title: "Phénols & polyphénols",     desc: "Les composés responsables de la couleur, de l'astringence et de la structure tannique du vin. Très corrélés entre eux." },
+  { id: 3, roman: "III", title: "Acidité, cendres & teinte", desc: "Acidité titrable, résidus minéraux et indice colorimétrique. Variables secondaires, mais utiles pour départager les cas ambigus." },
+];
+
+// ─── StandardScaler parameters (fitted on train set, 113 samples) ────
+// Full-dataset statistics used as close approximation for browser demo.
+const SCALER_MEANS = {
+  alcohol: 13.000618, malic_acid: 2.336348, ash: 2.366517,
+  alcalinity_of_ash: 19.494944, magnesium: 99.741573,
+  total_phenols: 2.295112, flavanoids: 2.029270,
+  nonflavanoid_phenols: 0.361854, proanthocyanins: 1.590899,
+  color_intensity: 5.058090, hue: 0.957449,
+  od280_od315: 2.611685, proline: 746.893258,
+};
+const SCALER_STDS = {
+  alcohol: 0.811827, malic_acid: 1.117146, ash: 0.274344,
+  alcalinity_of_ash: 3.339564, magnesium: 14.282484,
+  total_phenols: 0.625851, flavanoids: 0.998859,
+  nonflavanoid_phenols: 0.124453, proanthocyanins: 0.572359,
+  color_intensity: 2.318286, hue: 0.228572,
+  od280_od315: 0.709990, proline: 314.907075,
+};
+
+// Column order must match sklearn Wine dataset (and training data)
+const FEATURE_ORDER = [
+  "alcohol","malic_acid","ash","alcalinity_of_ash","magnesium",
+  "total_phenols","flavanoids","nonflavanoid_phenols","proanthocyanins",
+  "color_intensity","hue","od280_od315","proline",
+];
+
+const CENTROIDS = {
+  0: { alcohol: 13.74, malic_acid: 2.01, ash: 2.46, alcalinity_of_ash: 17.04, magnesium: 106.34, total_phenols: 2.84, flavanoids: 2.98, nonflavanoid_phenols: 0.29, proanthocyanins: 1.90, color_intensity: 5.53, hue: 1.06, od280_od315: 3.16, proline: 1115.71 },
+  1: { alcohol: 12.28, malic_acid: 1.93, ash: 2.24, alcalinity_of_ash: 20.24, magnesium: 94.55,  total_phenols: 2.26, flavanoids: 2.08, nonflavanoid_phenols: 0.36, proanthocyanins: 1.63, color_intensity: 3.09, hue: 1.06, od280_od315: 2.79, proline: 519.51 },
+  2: { alcohol: 13.15, malic_acid: 3.33, ash: 2.44, alcalinity_of_ash: 21.42, magnesium: 99.31,  total_phenols: 1.68, flavanoids: 0.78, nonflavanoid_phenols: 0.45, proanthocyanins: 1.15, color_intensity: 7.40, hue: 0.68, od280_od315: 1.68, proline: 629.90 },
+};
+
+const CLASS_INFO = [
+  { idx: 0, num: "Cuvée I",   name: "Barolo",     it: "présumé · n = 59", color: "#8a1020" },
+  { idx: 1, num: "Cuvée II",  name: "Grignolino", it: "présumé · n = 71", color: "#c04560" },
+  { idx: 2, num: "Cuvée III", name: "Barbera",    it: "présumé · n = 48", color: "#4a0c14" },
+];
+
+const DEFAULTS = { ...CENTROIDS[0] };
+
+// ─── Wine Glass ──────────────────────────────────────────────────────
+function WineGlass({ color }) {
+  return (
+    <svg viewBox="0 0 180 220" className="glass-svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="wg2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor={color} stopOpacity="0.55" />
+          <stop offset="55%"  stopColor={color} stopOpacity="0.92" />
+          <stop offset="100%" stopColor={color} stopOpacity="1" />
+        </linearGradient>
+        <radialGradient id="mn2" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%"   stopColor="#fff" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        <clipPath id="bc2">
+          <path d="M 36 14 C 36 80, 50 110, 90 112 C 130 110, 144 80, 144 14 Z" />
+        </clipPath>
+      </defs>
+      <g clipPath="url(#bc2)">
+        <rect x="20" y="40" width="140" height="80" fill="url(#wg2)" style={{ transition: "fill 0.5s ease" }} />
+        <ellipse cx="90" cy="42" rx="56" ry="5" fill="url(#mn2)" />
+      </g>
+      <path d="M 36 14 C 36 80, 50 110, 90 112 C 130 110, 144 80, 144 14" fill="none" stroke="#1c150f" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="36" y1="14" x2="144" y2="14" stroke="#1c150f" strokeWidth="1.2" />
+      <line x1="90" y1="112" x2="90" y2="190" stroke="#1c150f" strokeWidth="1.2" />
+      <ellipse cx="90" cy="194" rx="36" ry="3.5" fill="none" stroke="#1c150f" strokeWidth="1.2" />
+      <path d="M 54 194 Q 90 200 126 194" fill="none" stroke="#1c150f" strokeWidth="1.2" />
+      <path d="M 48 28 C 46 50, 52 78, 64 92" fill="none" stroke="#fff" strokeOpacity="0.18" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// ─── Slider ──────────────────────────────────────────────────────────
+function FeatureSlider({ feat, value, onChange }) {
+  const [pulse, setPulse] = useState(false);
+  useEffect(() => {
+    setPulse(true);
+    const t = setTimeout(() => setPulse(false), 600);
+    return () => clearTimeout(t);
+  }, [value]);
+  const fmt = (v) => v.toFixed(feat.dp);
+  const ticks = [];
+  for (let i = 0; i <= 8; i++) ticks.push(<span key={i} className={i === 4 ? "center" : ""} />);
+  return (
+    <div className={"feature" + (pulse ? " changed" : "")}>
+      <div className="label">{feat.label}<span className="it">{feat.it}</span></div>
+      <div className="value">{fmt(value)}</div>
+      <div className="slider-wrap">
+        <input type="range" min={feat.min} max={feat.max} step={feat.step} value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))} />
+        <div className="ticks">{ticks}</div>
+      </div>
+      <div className="range-labels" style={{ gridColumn: "1 / -1" }}>
+        <span>{fmt(feat.min)}</span><span>{fmt(feat.max)}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main App ────────────────────────────────────────────────────────
+function App() {
+  const [features, setFeatures]     = useState(DEFAULTS);
+  const [probs, setProbs]             = useState([1/3, 1/3, 1/3]);
+  const [modelStatus, setModelStatus] = useState("loading"); // loading | ready | error
+  const weightsRef = useRef(null);
+
+  // ─── Native JS MLP forward pass ──────────────────────────────────
+  function matVecMulAdd(W, b, x) {
+    // W[in][out], b[out], x[in] → result[out]
+    return b.map((bj, j) => x.reduce((acc, xi, i) => acc + xi * W[i][j], bj));
+  }
+  function relu(x) { return x.map(v => Math.max(0, v)); }
+  function softmax(x) {
+    const max = Math.max(...x);
+    const e = x.map(v => Math.exp(v - max));
+    const s = e.reduce((a, b) => a + b, 0);
+    return e.map(v => v / s);
+  }
+  function forwardPass(layers, x) {
+    let h = x;
+    layers.forEach(({ W, b }, i) => {
+      h = matVecMulAdd(W, b, h);
+      h = i < layers.length - 1 ? relu(h) : softmax(h);
+    });
+    return h;
+  }
+
+  // Load weights.json once on mount
+  useEffect(() => {
+    fetch("./weights.json")
+      .then(r => { if (!r.ok) throw new Error("not found"); return r.json(); })
+      .then(data => {
+        weightsRef.current = Object.values(data); // ordered array of {W, b}
+        setModelStatus("ready");
+      })
+      .catch(() => setModelStatus("error"));
+  }, []);
+
+  // Inference on every feature change
+  useEffect(() => {
+    if (modelStatus !== "ready") return;
+    const x = FEATURE_ORDER.map(id => (features[id] - SCALER_MEANS[id]) / SCALER_STDS[id]);
+    setProbs(forwardPass(weightsRef.current, x));
+  }, [features, modelStatus]);
+
+  const winnerIdx = probs.indexOf(Math.max(...probs));
+  const winner    = CLASS_INFO[winnerIdx];
+  const confidence = probs[winnerIdx];
+
+  const set        = (id, v) => setFeatures((f) => ({ ...f, [id]: v }));
+  const loadPreset = (idx) => setFeatures({ ...CENTROIDS[idx] });
+  const reset      = () => setFeatures({ ...DEFAULTS });
+  const loadRandom = () => {
+    const c    = Math.floor(Math.random() * 3);
+    const base = CENTROIDS[c];
+    const jittered = {};
+    for (const f of FEATURES) {
+      const stds  = { alcohol:0.81, malic_acid:1.12, ash:0.27, alcalinity_of_ash:3.34, magnesium:14.28, total_phenols:0.63, flavanoids:1.00, nonflavanoid_phenols:0.12, proanthocyanins:0.57, color_intensity:2.32, hue:0.23, od280_od315:0.71, proline:314.91 };
+      const noise = (Math.random() - 0.5) * stds[f.id] * 0.9;
+      const v     = Math.max(f.min, Math.min(f.max, base[f.id] + noise));
+      jittered[f.id] = Math.round(v / f.step) * f.step;
+    }
+    setFeatures(jittered);
+  };
+
+  const grouped = GROUPS.map((g) => ({ ...g, feats: FEATURES.filter((f) => f.grp === g.id) }));
+
+  return (
+    <React.Fragment>
+      {/* Loading / error overlay */}
+      {modelStatus === "loading" && (
+        <div className="model-overlay">
+          <div className="model-card">
+            <div className="mc-label">Chargement des poids</div>
+            <div className="spinner" />
+            <div className="mc-title">weights.json</div>
+            <div className="mc-sub">
+              Chargement des poids du réseau de neurones…<br />
+              Keras 3.13.2 · 3 075 paramètres · Dense(64→32→3)
+            </div>
+            <code>weights.json</code>
+          </div>
+        </div>
+      )}
+      {modelStatus === "error" && (
+        <div className="model-overlay">
+          <div className="model-card">
+            <div className="mc-label">Poids introuvables</div>
+            <div className="mc-title">Extraction requise</div>
+            <div className="mc-sub">
+              Les poids doivent être extraits de <em>best_model.keras</em>.<br />
+              Lancez ce script depuis l'environnement Python qui possède TensorFlow :
+            </div>
+            <code>python extract_weights.py</code>
+          </div>
+        </div>
+      )}
+
+      {/* Masthead */}
+      <header className="masthead">
+        <div className="ed-meta-l">
+          Volume <span className="accent">I</span> — Numéro <span className="accent">V</span><br />
+          Édition de printemps <span className="accent">·</span> Vendredi 21 mai 2026
+        </div>
+        <h1>Vinum <span className="amp">&amp;</span> Chimique</h1>
+        <div className="ed-meta-r">
+          TP05 · Parcours <span className="accent">C</span> — Tabulaire<br />
+          Modèle <span className="accent">réel · Keras 3.13.2 · poids JSON</span>
+        </div>
+        <div className="sub">
+          <div className="rule" />
+          <div className="tagline">
+            Inférence en direct sur les poids entraînés &nbsp;·&nbsp; propagation directe, zéro dépendance
+          </div>
+          <div className="rule" />
+        </div>
+      </header>
+
+      {/* Body */}
+      <main className="main">
+        <section className="col-l">
+          {grouped.map((g) => (
+            <React.Fragment key={g.id}>
+              <div className="section-title">
+                <span className="roman">{g.roman}.</span>
+                <h3>{g.title}</h3>
+                <span className="count">{g.feats.length} mesures</span>
+              </div>
+              <p className="desc">{g.desc}</p>
+              <div className="feature-grid">
+                {g.feats.map((f) => (
+                  <FeatureSlider key={f.id} feat={f} value={features[f.id]}
+                    onChange={(v) => set(f.id, v)} />
+                ))}
+              </div>
+            </React.Fragment>
+          ))}
+        </section>
+
+        <aside className="col-r">
+          <div className="verdict-head">
+            <span className="roman">§</span>
+            <h3>Verdict du modèle</h3>
+            <span className="live">modèle réel · MLP direct</span>
+          </div>
+          <p className="verdict-desc">
+            Les poids de <code>weights.json</code> sont chargés puis le passage avant est calculé
+            directement en JavaScript — aucune bibliothèque externe, aucun serveur.
+          </p>
+
+          <div className="verdict-name" style={{ borderTopColor: winner.color }}>
+            <div className="num">— {winner.num} —</div>
+            <h2 key={winnerIdx} style={{ color: winner.color }}>
+              {winner.name}
+              <span className="italic-tail">{winner.it}</span>
+            </h2>
+            <div className="conf">
+              <span>certitude</span>
+              <strong>{(confidence * 100).toFixed(1)} %</strong>
+              <span>—&nbsp;{confidence > 0.85 ? "décision tranchée" : confidence > 0.6 ? "décision nette" : "décision hésitante"}</span>
+            </div>
+          </div>
+
+          <div className="glass-bay">
+            <WineGlass color={winner.color} />
+            <div className="glass-caption">
+              <span className="fig">Fig. 1 — Profil chromatique · poids réels</span>
+              <span className="swatch" style={{ background: winner.color }} />
+              Robe restituée à partir de l'intensité colorante <em>({features.color_intensity.toFixed(2)})</em>,
+              de la teinte <em>({features.hue.toFixed(2)})</em> et de la classe prédite par le modèle entraîné.
+            </div>
+          </div>
+
+          <div className="probs">
+            <div className="probs-head">
+              <span>Probabilités <em className="em">p(c · x)</em></span>
+              <span>softmax réel</span>
+            </div>
+            {CLASS_INFO.map((c, i) => (
+              <div key={c.idx} className={"prob-row" + (i === winnerIdx ? " winner" : "")}>
+                <span className="pclass">{["I","II","III"][i]}.</span>
+                <span className="pname">{c.name}<span className="it">{c.num}</span></span>
+                <span className="pval">{(probs[i] * 100).toFixed(1)}%</span>
+                <div className="pbar">
+                  <div className="pfill" style={{ width: (probs[i]*100)+"%", background: c.color }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="presets">
+            <div className="presets-label">— Échantillons de référence —</div>
+            <div className="preset-row">
+              {CLASS_INFO.map((c, i) => (
+                <button key={i} className="preset wine" onClick={() => loadPreset(i)}>{c.name}</button>
+              ))}
+              <button className="preset" onClick={loadRandom}>↻&nbsp;aléatoire</button>
+              <button className="preset reset" onClick={reset}>réinitialiser</button>
+            </div>
+          </div>
+        </aside>
+      </main>
+
+      {/* Footer */}
+      <footer className="colophon">
+        <div className="col-block">
+          <div className="h">Accuracy test</div>
+          <div className="v wine">94,44<span className="unit"> %</span></div>
+          <div className="cap">34 / 36 vins correctement classifiés — poids réels utilisés ici.</div>
+        </div>
+        <div className="col-block">
+          <div className="h">Runtime</div>
+          <div className="v">JS natif<span className="unit"> · 0 dep.</span></div>
+          <div className="cap">Propagation directe — aucune bibliothèque, aucun serveur.</div>
+        </div>
+        <div className="col-block">
+          <div className="h">Paramètres</div>
+          <div className="v">3 075<span className="unit"> · 12 KB</span></div>
+          <div className="cap">Dense(64, relu) → Dropout(0.2) → Dense(32, relu) → Dense(3, softmax).</div>
+        </div>
+        <div className="col-block">
+          <div className="h">Keras / TF version</div>
+          <div className="v">3.13<span className="unit"> · 2.20</span></div>
+          <div className="cap">Sauvegardé le 2026-05-21 à 14:08 · format <em>.keras</em>.</div>
+        </div>
+        <div className="imprint">
+          <span><span className="accent">Vinum &amp; Chimique</span> · IPSSI · TP05 — Modèle réel · poids JSON</span>
+          <span>Dataset <span className="accent">sklearn.datasets.load_wine</span> · 178 échantillons · 13 features</span>
+          <span>JARI Salah Eddine &amp; Elyas Abdenbi · <span className="accent">mai MMXXVI</span></span>
+        </div>
+      </footer>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("app")).render(<App />);
+  </script>
+
+  <script>
+  // ── Animated background canvas ──────────────────────────────────────
+  (function () {
+    const canvas = document.getElementById('bg-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const BLOBS = [
+      { x: 0.12, y: 0.18, r: 0.28, vx:  0.00055, vy:  0.00040, rgb: [110, 14, 26], a: 0.68, ps: 0.0008 },
+      { x: 0.78, y: 0.62, r: 0.32, vx: -0.00040, vy: -0.00052, rgb: [ 60,  8, 16], a: 0.58, ps: 0.0006 },
+      { x: 0.50, y: 0.88, r: 0.24, vx:  0.00044, vy: -0.00036, rgb: [120, 65, 10], a: 0.44, ps: 0.0010 },
+      { x: 0.88, y: 0.14, r: 0.22, vx: -0.00048, vy:  0.00048, rgb: [ 75, 10, 22], a: 0.52, ps: 0.0007 },
+      { x: 0.30, y: 0.72, r: 0.30, vx:  0.00032, vy:  0.00060, rgb: [ 45,  5, 12], a: 0.62, ps: 0.0009 },
+      { x: 0.65, y: 0.32, r: 0.20, vx: -0.00036, vy: -0.00056, rgb: [130, 70,  8], a: 0.40, ps: 0.0011 },
+      { x: 0.40, y: 0.45, r: 0.18, vx:  0.00064, vy:  0.00028, rgb: [ 90, 12, 20], a: 0.50, ps: 0.0008 },
+    ];
+    let t = 0;
+
+    function draw() {
+      const W = canvas.width, H = canvas.height;
+      const isLight = document.documentElement.dataset.theme === 'light';
+      t++;
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = isLight ? '#e0cba8' : '#0e0508';
+      ctx.fillRect(0, 0, W, H);
+      for (const b of BLOBS) {
+        b.x += b.vx; b.y += b.vy;
+        if (b.x < -0.35) b.x = 1.35;
+        if (b.x >  1.35) b.x = -0.35;
+        if (b.y < -0.35) b.y = 1.35;
+        if (b.y >  1.35) b.y = -0.35;
+        const pulse = 1 + 0.20 * Math.sin(t * b.ps);
+        const baseA = isLight ? b.a * 0.38 : b.a;
+        const alpha = baseA * (0.82 + 0.18 * Math.sin(t * b.ps * 1.4));
+        const cx = b.x * W, cy = b.y * H, rr = b.r * pulse * Math.max(W, H);
+        const [r, gc, bl] = isLight
+          ? [b.rgb[0] + 60, b.rgb[1] + 30, b.rgb[2] + 20]
+          : b.rgb;
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rr);
+        g.addColorStop(0,   `rgba(${r},${gc},${bl},${alpha.toFixed(2)})`);
+        g.addColorStop(0.42,`rgba(${r},${gc},${bl},${(alpha * 0.38).toFixed(2)})`);
+        g.addColorStop(1,   `rgba(${r},${gc},${bl},0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cx, cy, rr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+  })();
+  </script>
+
+  <script>
+  // ── Dark / Light mode toggle ───────────────────────────────────
+  (function () {
+    const root   = document.documentElement;
+    const btn    = document.getElementById('theme-toggle');
+    const icon   = document.getElementById('theme-icon');
+    const label  = document.getElementById('theme-label');
+    const stored = localStorage.getItem('vinum-theme');
+    let dark = stored ? stored === 'dark' : true;
+
+    function apply() {
+      root.dataset.theme = dark ? 'dark' : 'light';
+      icon.textContent   = dark ? '🌙' : '☀️';
+      label.textContent  = dark ? 'Clair' : 'Sombre';
+      localStorage.setItem('vinum-theme', dark ? 'dark' : 'light');
+    }
+
+    btn.addEventListener('click', () => { dark = !dark; apply(); });
+    apply();
+  })();
+  </script>
+
+</body>
+</html>

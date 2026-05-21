@@ -1,5 +1,33 @@
 # TP05 — Projet Final Deep Learning
 
+## Démarrage rapide — Lancer la démo
+
+### Prérequis
+
+- Python 3.10+ installé (testé avec 3.13)
+- `h5py` et `numpy` : `pip install h5py numpy`
+
+### Étapes
+
+```bash
+# 1. Se placer dans le dossier du projet
+cd chemin/vers/Project
+
+# 2. Extraire les poids du modèle Keras → weights.json
+py -3.13 extract_weights.py
+
+# 3. Lancer le serveur local
+py -3.13 -m http.server 8000
+
+# 4. Ouvrir dans le navigateur
+#    http://localhost:8000/demo.html   ← modèle réel (poids JSON)
+#    http://localhost:8000/index.html  ← démo visuelle simulée
+```
+
+> **Vérification** : si `extract_weights.py` affiche `[OK] weights.json (61.7 KB) — 3 layers`, tout est prêt.
+
+---
+
 ## Navigation
 
 | Section notebook | Titre | Où trouver |
@@ -149,11 +177,15 @@ Le MLP améliore largement le classificateur majoritaire (~40 %). Il est légèr
 | Fichier | Description |
 |---|---|
 | `TP05_Projet_Final_Deep_Learning_v2.ipynb` | Notebook principal |
-| `best_model.keras` | Modèle sauvegardé (généré après exécution) |
+| `best_model.keras` | Modèle sauvegardé (généré après exécution du notebook) |
+| `extract_weights.py` | Exporte les poids Keras → `weights.json` (sans TensorFlow) |
+| `weights.json` | Poids du modèle pour l'inférence JS (généré par `extract_weights.py`) |
+| `demo.html` | Démo interactive — modèle réel, inférence JS native |
+| `index.html` | Démo visuelle simulée |
 | `README.md` | Ce fichier |
 
 ---
 
-## Exécution
+## Exécution notebook
 
 Ouvrir dans **Google Colab** et exécuter les cellules de haut en bas (`Runtime → Run all`). Le fichier `best_model.keras` est généré automatiquement à la section 14.

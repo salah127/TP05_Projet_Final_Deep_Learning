@@ -1,0 +1,17 @@
+# Generated — run extract_weights.py to recreate
+weights.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual env
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
