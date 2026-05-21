@@ -2,7 +2,7 @@
 
 ## 🔗 Démo en ligne
 
-> **[Tester le projet →](https://mlp-t5.vercel.app/)**
+> **[Cliquer ici pour tester le projet →](https://mlp-t5.vercel.app/)**
 
 ---
 
