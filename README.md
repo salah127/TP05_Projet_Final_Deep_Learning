@@ -25,17 +25,50 @@
 | Nombre de features | 13 (mesures chimiques continues) |
 | Nombre de classes | 3 (`class_0`, `class_1`, `class_2`) |
 | Variable cible | Catégorie du vin (0, 1 ou 2) |
-| Type de tâche | Classification multi-classe |
+| Type de tâche | Classification multi-classe supervisée |
 | Métrique principale | Accuracy |
 | Critère de réussite | Accuracy test > 90 % |
 | Source | Intégré dans scikit-learn — aucun téléchargement requis |
 
-### Pourquoi ce dataset ?
+### 1. Pourquoi ce dataset a été choisi ?
 
-- Léger et directement accessible dans Google Colab via `sklearn` (aucune API ni compte externe).
-- Problème de classification multi-classe compatible avec un MLP.
-- Données suffisamment simples pour une analyse complète en une journée.
-- Baseline réaliste à battre (classificateur majoritaire ~40 %).
+- Directement accessible dans Google Colab via `sklearn.datasets.load_wine` — aucune API, aucun compte externe, aucun téléchargement.
+- Dataset léger (178 échantillons, < 1 KB) : chargement instantané, pas de contrainte mémoire.
+- Données suffisamment simples pour permettre un pipeline complet (preprocessing → modèle → évaluation) en une journée.
+- Baseline réaliste à améliorer (classificateur majoritaire ~40 %).
+
+### 2. Quel est le problème traité ?
+
+Classifier automatiquement un vin dans l'une des 3 catégories (`class_0`, `class_1`, `class_2`) à partir de 13 mesures chimiques issues d'une analyse de laboratoire (taux d'alcool, acide malique, cendres, magnésium, flavanoïdes, proline, etc.).
+
+### 3. Quelle est la variable cible ?
+
+La colonne `target` — un entier entre 0 et 2 représentant la classe du vin :
+- `class_0` : 59 échantillons
+- `class_1` : 71 échantillons
+- `class_2` : 48 échantillons
+
+### 4. Quelle métrique principale est utilisée ?
+
+**Accuracy** (taux de classification correcte sur le test set).  
+Justification : les 3 classes sont relativement équilibrées (59 / 71 / 48), donc l'accuracy n'est pas biaisée par un déséquilibre de classes. Le rapport de classification complet (precision, recall, f1 par classe) est également affiché pour détecter les confusions classe par classe.
+
+### 5. Pourquoi le modèle MLP est-il adapté à ces données ?
+
+- Les 13 features sont **numériques continues** : un MLP avec couches `Dense` est naturellement adapté à ce type d'entrée, contrairement à un CNN (images) ou un RNN (séquences temporelles).
+- Les features ont des **échelles très différentes** (`proline` ~700 vs `nonflavanoid_phenols` ~0.3) : après `StandardScaler`, un MLP converge efficacement grâce à la descente de gradient sur des distributions normalisées.
+- Les interactions **non-linéaires** entre features chimiques (ex. combinaison alcool + flavanoïdes) justifient l'usage d'activations `relu` plutôt qu'un modèle purement linéaire.
+- Architecture légère (3 075 paramètres) suffisante pour 178 échantillons — évite le sur-apprentissage.
+
+### ✅ Vérification faisabilité Google Colab (CPU)
+
+| Critère | Résultat |
+|---|---|
+| Temps de chargement | < 1 s |
+| Temps d'entraînement | **2.95 s** (15 epochs, CPU) |
+| Mémoire requise | < 1 MB |
+| Dépendances | `sklearn`, `tensorflow`, `numpy` — toutes pré-installées sur Colab |
+| Exécution complète notebook | < 30 s |
 
 ---
 
@@ -54,7 +87,9 @@ Input(13)
 - **Optimiseur :** Adam (lr=1e-3)
 - **Loss :** `sparse_categorical_crossentropy`
 - **Régularisation :** Dropout + EarlyStopping (patience=3, restore_best_weights)
-- **Epochs max :** 15
+- **Epochs :** 15/15 (EarlyStopping non déclenché)
+- **Paramètres totaux :** 3 075 (12.01 KB)
+- **Temps d'entraînement :** 2.95 s (CPU)
 
 ---
 
@@ -92,7 +127,16 @@ Objectif : vérifier si une plus grande capacité améliore l'accuracy sans aggr
 
 ## 20. Conclusion
 
-Dataset très petit (178 échantillons) — résultats potentiellement sensibles au split aléatoire. Le MLP améliore la baseline majoritaire (~40 %) mais ne dépasse pas significativement la régression logistique sur ce problème quasi-linéairement séparable. Avec plus de temps : validation croisée k-fold + comparaison MLP vs SVM vs RandomForest.
+| Métrique | Résultat |
+|---|---|
+| Accuracy test | **94.44 %** ✓ (critère > 90 % atteint) |
+| Val accuracy finale | 96.55 % |
+| Train accuracy finale | 99.12 % |
+| Temps d'entraînement | 2.95 s |
+| Erreurs sur 36 tests | 2 (class_1 → class_0) |
+| class_2 | Parfaitement classifiée (f1 = 1.00) |
+
+Le MLP améliore largement le classificateur majoritaire (~40 %). Il est légèrement en-dessous de la régression logistique (référence ~97–99 %), ce qui est attendu sur 178 échantillons. Avec plus de données, le MLP deviendrait plus compétitif.
 
 ---
 
