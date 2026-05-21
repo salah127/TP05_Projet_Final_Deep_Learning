@@ -1,7 +1,8 @@
 {
   "version": 2,
+  "outputDirectory": "web",
   "builds": [
-    { "src": "**", "use": "@vercel/static" }
+    { "src": "web/**", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/", "dest": "/demo.html" }

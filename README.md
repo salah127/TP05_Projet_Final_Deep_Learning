@@ -19,17 +19,17 @@
 # 1. Se placer dans le dossier du projet
 cd chemin/vers/Project
 
-# 2. Extraire les poids du modèle Keras → weights.json
-py -3.13 extract_weights.py
+# 2. Extraire les poids du modèle Keras → web/weights.json
+py -3.13 scripts/extract_weights.py
 
 # 3. Lancer le serveur local
 py -3.13 -m http.server 8000
 
 # 4. Ouvrir dans le navigateur
-#    http://localhost:8000/demo.html   ← modèle réel (poids JSON)
+#    http://localhost:8000/web/demo.html   ← modèle réel (poids JSON)
 ```
 
-> **Vérification** : si `extract_weights.py` affiche `[OK] weights.json (61.7 KB) — 3 layers`, tout est prêt.
+> **Vérification** : si `extract_weights.py` affiche `[OK] web/weights.json (61.7 KB) — 3 layers`, tout est prêt.
 
 ---
 
@@ -181,12 +181,12 @@ Le MLP améliore largement le classificateur majoritaire (~40 %). Il est légèr
 
 | Fichier | Description |
 |---|---|
-| `TP05_Projet_Final_Deep_Learning_v2.ipynb` | Notebook principal |
-| `best_model.keras` | Modèle sauvegardé (généré après exécution du notebook) |
-| `extract_weights.py` | Exporte les poids Keras → `weights.json` (sans TensorFlow) |
-| `weights.json` | Poids du modèle pour l'inférence JS (généré par `extract_weights.py`) |
-| `demo.html` | Démo interactive — modèle réel, inférence JS native |
-| `index.html` | Démo visuelle simulée |
+| `notebook/TP05_Projet_Final_Deep_Learning_v2.ipynb` | Notebook principal |
+| `model/best_model.keras` | Modèle sauvegardé |
+| `scripts/extract_weights.py` | Exporte les poids Keras → `web/weights.json` |
+| `web/weights.json` | Poids pour l'inférence JS (généré) |
+| `web/demo.html` | Démo interactive — modèle réel, inférence JS native |
+| `web/index.html` | Démo visuelle simulée |
 | `README.md` | Ce fichier |
 
 ---

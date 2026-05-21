@@ -4,11 +4,11 @@ extract_weights.py — Export best_model.keras weights to weights.json
 Requires ONLY h5py (auto-installed if missing, ~4 MB).
 NO TensorFlow needed — reads the HDF5 directly from the .keras ZIP.
 
-  python3.13 extract_weights.py
+  python3.13 scripts/extract_weights.py
 
 After running, serve with:
     python3.13 -m http.server 8000
-Then open: http://localhost:8000/demo.html
+Then open: http://localhost:8000/web/demo.html
 """
 
 import sys, os, json, zipfile, io, subprocess
@@ -23,9 +23,12 @@ except ImportError:
     print("  Then re-run this script.")
     sys.exit(1)
 
-MODEL = "best_model.keras"
+# Paths relative to project root (run this script from project root)
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL = os.path.join(ROOT, "model", "best_model.keras")
+OUTPUT = os.path.join(ROOT, "web", "weights.json")
 if not os.path.exists(MODEL):
-    print(f"[ERROR] {MODEL} not found. Run this script from the project folder.")
+    print(f"[ERROR] {MODEL} not found.")
     sys.exit(1)
 
 # ── Extract the .h5 weights file from inside the .keras ZIP ──────────
@@ -85,12 +88,12 @@ for name, kernel_shape, bias_shape in EXPECTED:
     out[name] = {"W": W.tolist(), "b": b.tolist()}
     print(f"  {name}: W={W.shape}, b={b.shape}")
 
-with open("weights.json", "w") as f:
+with open(OUTPUT, "w") as f:
     json.dump(out, f, separators=(",", ":"))
 
-kb = os.path.getsize("weights.json") / 1024
-print(f"\n[OK] weights.json  ({kb:.1f} KB)  — {len(out)} layers")
+kb = os.path.getsize(OUTPUT) / 1024
+print(f"\n[OK] web/weights.json  ({kb:.1f} KB)  — {len(out)} layers")
 print("\nNext steps:")
 print("  python3.13 -m http.server 8000")
-print("  open http://localhost:8000/demo.html")
+print("  open http://localhost:8000/web/demo.html")
 
