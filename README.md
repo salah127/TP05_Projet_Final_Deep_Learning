@@ -1,5 +1,11 @@
 # TP05 — Projet Final Deep Learning
 
+## 🔗 Démo en ligne
+
+> **[Tester le projet →](https://YOUR_LINK_HERE)**
+
+---
+
 ## Démarrage rapide — Lancer la démo
 
 ### Prérequis
@@ -21,7 +27,6 @@ py -3.13 -m http.server 8000
 
 # 4. Ouvrir dans le navigateur
 #    http://localhost:8000/demo.html   ← modèle réel (poids JSON)
-#    http://localhost:8000/index.html  ← démo visuelle simulée
 ```
 
 > **Vérification** : si `extract_weights.py` affiche `[OK] weights.json (61.7 KB) — 3 layers`, tout est prêt.
