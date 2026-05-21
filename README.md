@@ -1,5 +1,31 @@
 # TP05 — Projet Final Deep Learning
 
+## Navigation
+
+| Section notebook | Titre | Où trouver |
+|---|---|---|
+| §2 | Informations groupe | Ce README → §2 |
+| §3 | Choix du parcours | Ce README → §3 |
+| §4 | Imports & configuration | Ce README → §4 |
+| §5 | Chargement des données / Dataset | Ce README → §5 |
+| §6 | Visualisation rapide | Voir notebook — cellule §6 |
+| §7 | Preprocessing | Voir notebook — cellule §7 |
+| §8 | Construction du modèle | Ce README → §8 |
+| §9 | Entraînement | Voir notebook — cellule §9 |
+| §10 | Courbes d'apprentissage | Voir notebook — cellule §10 |
+| §11 | Évaluation | Voir notebook — cellule §11 |
+| §12 | Analyse d'erreurs | Voir notebook — cellule §12 |
+| §13 | Amélioration / comparaison | Ce README → §13 |
+| §14 | Sauvegarde du modèle | Ce README → §14-16 |
+| §15 | Chargement du modèle | Ce README → §14-16 |
+| §16 | Inférence | Ce README → §14-16 |
+| §17 | Mini-démo | Voir notebook — cellule §17 |
+| §18 | Question WebApp/API | Voir notebook — cellule §18 |
+| §19 | Bonus Gradio (facultatif) | Voir notebook — cellule §19 |
+| §20 | Conclusion | Ce README → §20 |
+
+---
+
 ## 2. Groupe
 
 | | Nom |
