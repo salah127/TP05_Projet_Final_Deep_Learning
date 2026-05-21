@@ -1,6 +1,8 @@
 {
   "version": 2,
   "outputDirectory": "web",
+  "buildCommand": "",
+  "installCommand": "",
   "routes": [
     { "src": "/", "dest": "/demo.html" }
   ]
