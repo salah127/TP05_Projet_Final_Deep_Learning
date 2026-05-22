@@ -64,7 +64,7 @@ py -3.13 -m http.server 8000
 | | Nom |
 |---|---|
 | Étudiant 1 | JARI Salah Eddine |
-| Étudiant 2 | Elyas Abdenbi |
+| Étudiant 2 | Elyes Abdenbi |
 
 ---
 
